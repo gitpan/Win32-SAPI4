@@ -15,3 +15,5 @@ Revision history for Perl extension Win32::SAPI4.
       - Bugfix in the VoiceText subs (handling 'unknown' languages)
 0.06  Wed Sep 29 2004
       - Bugfix in the AUTOLOAD sub (again)
+0.07  Fri Oct 1 2004
+      - Added GetObject method to all classes

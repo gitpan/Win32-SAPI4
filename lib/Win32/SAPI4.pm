@@ -3,7 +3,7 @@ package Win32::SAPI4;
 use strict;
 use warnings;
 use Win32::OLE;
-our $VERSION     = 0.06;
+our $VERSION     = 0.07;
 our (%CLSID, $AUTOLOAD);
 BEGIN
 {
@@ -35,6 +35,16 @@ sub AUTOLOAD
     my @params = @_;
     (my $auto = $AUTOLOAD) =~ s/.*:://;
     return $self->{_object}->$auto(@params);
+}
+
+sub GetObject
+{
+    my $self = shift;
+    return $self->{_object};
+}
+
+sub DESTROY
+{
 }
 
 package Win32::SAPI4::VoiceText;
@@ -168,6 +178,18 @@ find the 4.0 version)
 
 See the Microsoft Speech API 4.0 Visual Basic documentation for 
 all methods, properties and events available, except the following:
+
+=head2 Win32::SAPI4::*
+
+=over 4
+
+=item GetObject
+
+All classes support the GetObject method which returns the actual Win32::OLE
+object. This may be useful when you need to pass the object as a parameter
+to another class' methods.
+
+=back
 
 =head2 Win32::SAPI4::VoiceText
 
