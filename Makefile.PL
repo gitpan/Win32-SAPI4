@@ -11,5 +11,6 @@ WriteMakefile(
     ABSTRACT_FROM=> 'lib/Win32/SAPI4.pm',
     PREREQ_PM    => {   'Win32::OLE'            => 0,
                         'Win32::OLE::Variant'   => 0,
-                        'Win32::OLE::Enum'      => 0}
+                        'Win32::OLE::Enum'      => 0,
+                        'Win32::Locale'         => 0}
 );
