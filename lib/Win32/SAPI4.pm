@@ -3,7 +3,7 @@ package Win32::SAPI4;
 use strict;
 use warnings;
 use Win32::OLE;
-our $VERSION     = 0.05;
+our $VERSION     = 0.06;
 our (%CLSID, $AUTOLOAD);
 BEGIN
 {
@@ -32,13 +32,9 @@ sub new
 sub AUTOLOAD
 {
     my $self = shift;
-    my $auto;
-    ($auto = $AUTOLOAD) =~ s/.*:://;
-    my $params = '';
-    $params .= "'$_'," for grep{defined $_} @_;
-    chop($params);
-    my $call = '$self->{_object}->'."$auto($params)";
-    return eval($call);
+    my @params = @_;
+    (my $auto = $AUTOLOAD) =~ s/.*:://;
+    return $self->{_object}->$auto(@params);
 }
 
 package Win32::SAPI4::VoiceText;

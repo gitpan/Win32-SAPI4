@@ -13,3 +13,5 @@ Revision history for Perl extension Win32::SAPI4.
 0.05  Tue Sep 28 2004
       - Bugfix in the AUTOLOAD sub (quoting the parameters)
       - Bugfix in the VoiceText subs (handling 'unknown' languages)
+0.06  Wed Sep 29 2004
+      - Bugfix in the AUTOLOAD sub (again)
