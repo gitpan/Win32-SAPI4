@@ -5,3 +5,4 @@ README
 MANIFEST.SKIP
 lib/Win32/SAPI4.pm
 MANIFEST
+META.yml                                 Module meta-data (added by MakeMaker)
