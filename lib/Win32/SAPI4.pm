@@ -1,19 +1,21 @@
 #!/usr/bin/perl
 package Win32::SAPI4;
+use strict;
+use warnings;
 use Win32::OLE;
-use vars qw ($VERSION);
-$VERSION     = 0.04;
-
+our $VERSION     = 0.05;
+our (%CLSID, $AUTOLOAD);
 BEGIN
 {
     Win32::OLE->Initialize(Win32::OLE::COINIT_MULTITHREADED);
-    our %CLSID = ( VoiceText               => '{2398E32F-5C6E-11D1-8C65-0060081841DE}',
-                   VoiceCommand            => '{66523042-35FE-11D1-8C4D-0060081841DE}',
-                   VoiceDictation          => '{582C2191-4016-11D1-8C55-0060081841DE}',
-                   VoiceTelephony          => '{FC9E740F-6058-11D1-8C66-0060081841DE}',
-                   DirectSpeechRecognition => '{4E3D9D1F-0C63-11D1-8BFB-0060081841DE}',
-                   DirectSpeechSynthesis   => '{EEE78591-FE22-11D0-8BEF-0060081841DE}'                   
-                 );
+
+    %CLSID = ( VoiceText               => '{2398E32F-5C6E-11D1-8C65-0060081841DE}',
+               VoiceCommand            => '{66523042-35FE-11D1-8C4D-0060081841DE}',
+               VoiceDictation          => '{582C2191-4016-11D1-8C55-0060081841DE}',
+               VoiceTelephony          => '{FC9E740F-6058-11D1-8C66-0060081841DE}',
+               DirectSpeechRecognition => '{4E3D9D1F-0C63-11D1-8BFB-0060081841DE}',
+               DirectSpeechSynthesis   => '{EEE78591-FE22-11D0-8BEF-0060081841DE}'                   
+             );
 }
 
 sub new
@@ -30,9 +32,11 @@ sub new
 sub AUTOLOAD
 {
     my $self = shift;
-    (my $auto = $AUTOLOAD) =~ s/.*:://;
+    my $auto;
+    ($auto = $AUTOLOAD) =~ s/.*:://;
     my $params = '';
-    $params .= "$_," for grep{defined $_} @_;
+    $params .= "'$_'," for grep{defined $_} @_;
+    chop($params);
     my $call = '$self->{_object}->'."$auto($params)";
     return eval($call);
 }
@@ -49,8 +53,18 @@ sub GetInstalledLanguages
     my %r;
     for (my $i=1; $i <= $self->{_object}->CountEngines; $i++)
     {
-        my ($t1, $t2) = split(/-/,Win32::Locale::get_language($self->{_object}->LanguageID($i)));
-        $r{code2language($t1)." (".code2country($t2).")"}++;
+        my $lang = Win32::Locale::get_language($self->{_object}->LanguageID($i));
+        if ($lang)
+        {
+            my ($t1, $t2) = split(/-/,$lang);
+            my $key = code2language($t1);
+            $key.= " (".code2country($t2).")" if code2country($t2);
+            $r{$key}++;
+        }
+        else
+        {
+            $r{'unknown'}++
+        }
     }
     return keys %r;
 }
@@ -59,11 +73,22 @@ sub GetInstalledVoices
 {
     my $self = shift;
     my $language = shift;
+    $language = '' if $language eq 'unknown';
     my @r;
     for (my $i=1; $i <= $self->{_object}->CountEngines; $i++)
     {
-        my ($t1, $t2) = split(/-/,Win32::Locale::get_language($self->{_object}->LanguageID($i)));
-        push @r, $self->{_object}->ModeName($i) if $language eq code2language($t1)." (".code2country($t2).")";
+        my $lang = Win32::Locale::get_language($self->{_object}->LanguageID($i));
+        if ($lang)
+        {
+            my ($t1, $t2) = split(/-/,$lang);
+            my $key = code2language($t1);
+            $key.= " (".code2country($t2).")" if code2country($t2);
+            push @r, $self->{_object}->ModeName($i) if $language eq $key;
+        }
+        else
+        {
+            push @r, $self->{_object}->ModeName($i) unless $language;
+        }
     }
     return @r;
 }
@@ -72,10 +97,15 @@ sub Language2LanguageID
 {
     my $self = shift;
     my $language = shift;
+    $language = '' if $language eq 'unknown';
+    return '0' unless $language;
     for (my $i=1; $i <= $self->{_object}->CountEngines; $i++)
     {
-        my ($t1, $t2) = split(/-/,Win32::Locale::get_language($self->{_object}->LanguageID($i)));
-        return $self->{_object}->LanguageID($i) if $language eq code2language($t1)." (".code2country($t2).")";
+        my $lang = Win32::Locale::get_language($self->{_object}->LanguageID($i));
+        my ($t1, $t2) = split(/-/,$lang);
+        my $key = code2language($t1);
+        $key.= " (".code2country($t2).")" if code2country($t2);
+        return $self->{_object}->LanguageID($i) if $language eq $key;
     }
 }
 
@@ -125,7 +155,8 @@ Win32::SAPI4 - Perl interface to the Microsoft Speech API 4.0
 =head1 DESCRIPTION
 
 This module is a simple interface to the Microsoft Speech API 4.0.
-It just offers 6 constructors to the different parts of this API.
+It just offers 6 constructors to the different parts of this API, along with a few utility
+methods for the VoiceText class.
 This documentation won't offer the complete documentation for it, just
 download the Microsoft Speech API 4.0 SDK and read the Visual Basic
 documentation. It's all there, except for the few convenience methods I
@@ -150,7 +181,9 @@ all methods, properties and events available, except the following:
 
 This method returns a list of all installed languages with their
 countryname. It may look like ('Dutch (Netherlands)', 'Dutch (Belgium)',
-'English (United States)', 'Portuguese (Brazil)')
+'English (United States)', 'Portuguese (Brazil)'). Some speechengines
+(notably the Fluency TTS engines) don't return a languageID. In this
+case 'unknown' is returned.
 
 =item GetInstalledVoices
 
@@ -161,7 +194,9 @@ It may look like ('Adult female (Dutch)', 'Microsoft Sam (US English)')
 =item Language2LanguageID
 
 This method takes a language as returned by GetInstalledLanguages and
-returns the corresponding LanguageID that VoiceText knows.
+returns the corresponding LanguageID that VoiceText knows. This also
+converts the 'unknown' that might be returned by GetInstalledLanguages
+back to a 0.
 
 =item Voice2ModeID
 

@@ -7,6 +7,9 @@ Revision history for Perl extension Win32::SAPI4.
 0.03  Mon Oct 27 2003
 	- Added tests
 0.04  Mon Jul 12 2004
-        - Rewritten the module almost from scratch. Constructors now
-          return Perl objects, and added 4 Perl only functions to
-          Win32::SAPI4::VoiceText.
+      - Rewritten the module almost from scratch. Constructors now
+        return Perl objects, and added 4 Perl only functions to
+        Win32::SAPI4::VoiceText.
+0.05  Tue Sep 28 2004
+      - Bugfix in the AUTOLOAD sub (quoting the parameters)
+      - Bugfix in the VoiceText subs (handling 'unknown' languages)
