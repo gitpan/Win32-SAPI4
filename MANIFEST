@@ -1,0 +1,7 @@
+LICENSE
+Changes
+Makefile.PL
+README
+MANIFEST.SKIP
+lib/Win32/SAPI4.pm
+MANIFEST
