@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 package Win32::SAPI4;
 use vars qw ($VERSION);
-$VERSION     = 0.02;
+$VERSION     = 0.03;
 
 package Win32::SAPI4::VoiceText;
 use Win32::OLE qw( EVENTS );
