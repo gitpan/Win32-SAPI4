@@ -12,5 +12,6 @@ WriteMakefile(
     PREREQ_PM    => {   'Win32::OLE'            => 0,
                         'Win32::OLE::Variant'   => 0,
                         'Win32::OLE::Enum'      => 0,
-                        'Win32::Locale'         => 0}
+                        'Win32::Locale'         => 0,
+                        'Locale::Codes'         => 0}
 );

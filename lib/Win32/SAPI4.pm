@@ -3,7 +3,7 @@ package Win32::SAPI4;
 use strict;
 use warnings;
 use Win32::OLE;
-our $VERSION     = 0.07;
+our $VERSION     = 0.08;
 our (%CLSID, $AUTOLOAD);
 BEGIN
 {
@@ -182,6 +182,10 @@ all methods, properties and events available, except the following:
 =head2 Win32::SAPI4::*
 
 =over 4
+
+=item new
+
+This is the constructor for each and every subclass. It doesn't take any parameters
 
 =item GetObject
 
